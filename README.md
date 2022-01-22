@@ -14,5 +14,8 @@
 > python3 manage.py runserver
   - run django server
 
-> python3 .\manage.py test
-  - run test
+> python3 manage.py test
+  - run unit test
+
+> python3 functional_tests.py
+  - run function test
