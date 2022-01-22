@@ -1,6 +1,7 @@
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.test import TestCase
+from django.template.loader import render_to_string
 from lists.views import home_page
 
 # Create your tests here.
@@ -12,6 +13,6 @@ class HomePageTest(TestCase):
     def test_home_page_returns_correct_html(self):
         request = HttpRequest()
         response = home_page(request) # home_page 뷰에 전달해서 응답을 취득, 반환값은 HttpResponse 객체
-        self.assertTrue(response.content.startswith(b'<html>')) # 응답 내용 검증
-        self.assertIn(b'<title>To-Do lists</title>', response.content)
-        self.assertTrue(response.content.endswith(b'</html>'))
+        html = response.content.decode('utf8') # home_page 함수가 template을 이용하여 구현 되었는지 검증
+        expected_html = render_to_string('home.html')
+        self.assertEqual(html, expected_html)        
