@@ -14,5 +14,5 @@
 > python3 manage.py runserver
   - run django server
 
-> python.exe .\manage.py test
+> python3 .\manage.py test
   - run test
