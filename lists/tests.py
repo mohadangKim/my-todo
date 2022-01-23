@@ -3,6 +3,7 @@ from django.http import HttpRequest, response
 from django.test import TestCase
 from django.template.loader import render_to_string
 from lists.views import home_page
+from lists.models import Item
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -31,3 +32,24 @@ class HomePageTest(TestCase):
         )
 
         self.assertEqual(response.content.decode(), expected_html)
+
+
+
+class ItemModelTest(TestCase):
+  
+    def test_saving_and_retrieving_items(self):
+        first_item = Item() # django orm
+        first_item.text = '첫 번째 아이템' # 속성 생성(column)
+        first_item.save() # DB에 저장
+
+        second_item = Item()
+        second_item.text = '두 번째 아이템'
+        second_item.save()
+
+        saved_items = Item.objects.all() # object : DB 조회, all() : 테이블에 있는 모든 레코드를 추출
+        self.assertEqual(saved_items.count(), 2)
+
+        first_saved_item = saved_items[0]
+        second_saved_item = saved_items[1]
+        self.assertEqual(first_saved_item.text, '첫 번째 아이템')
+        self.assertEqual(second_saved_item.text, '두 번째 아이템')

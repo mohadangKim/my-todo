@@ -19,3 +19,6 @@
 
 > python3 functional_tests.py
   - run function test
+
+> python3 manage.py makemigrations
+  - upgrade DB(based on models.py)
