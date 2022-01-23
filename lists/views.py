@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from lists.models import Item
+from lists.models import List
 
 # Create your views here.
 
@@ -12,5 +13,6 @@ def view_list(request):
     return render(request, 'list.html', {'items' : items}) # template을 이용하여 요청에대한 처리 수행
 
 def new_list(request):
-    Item.objects.create(text=request.POST['item_text'])
+    list_ = List.objects.create()
+    Item.objects.create(text=request.POST['item_text'], list=list_)
     return redirect('/lists/the-only-list-in-the-world/')

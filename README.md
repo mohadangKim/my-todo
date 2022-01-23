@@ -34,3 +34,6 @@
 
 > rm db.sqlite3
   - remove DB
+
+> ls lists\migrations
+  - DB migration output files

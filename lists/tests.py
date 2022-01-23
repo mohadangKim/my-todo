@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from lists.views import home_page
 from lists.views import new_list
 from lists.models import Item
+from lists.models import List
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -19,16 +20,24 @@ class HomePageTest(TestCase):
         expected_html = render_to_string('home.html')
         self.assertEqual(html, expected_html)
 
-class ItemModelTest(TestCase):
-  
+class ListAndItemModelTest(TestCase):
+    
     def test_saving_and_retrieving_items(self):
+        list_ = List()
+        list_.save()
+
         first_item = Item() # django orm
         first_item.text = '첫 번째 아이템' # 속성 생성(column)
-        first_item.save() # DB에 저장
+        first_item.list =list_
+        first_item.save()
 
         second_item = Item()
         second_item.text = '두 번째 아이템'
+        second_item.list = list_
         second_item.save()
+
+        saved_list = List.objects.first()
+        self.assertEqual(saved_list, list_)
 
         saved_items = Item.objects.all() # object : DB 조회, all() : 테이블에 있는 모든 레코드를 추출
         self.assertEqual(saved_items.count(), 2)
@@ -36,7 +45,9 @@ class ItemModelTest(TestCase):
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, '첫 번째 아이템')
+        self.assertEqual(first_saved_item.list, list_)
         self.assertEqual(second_saved_item.text, '두 번째 아이템')
+        self.assertEqual(second_saved_item.list, list_)
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):
@@ -44,13 +55,9 @@ class ListViewTest(TestCase):
         self.assertTemplateUsed(response, 'list.html') # reponse가 list.html 템플릿을 이용하여 만들어 졌는지 검증
 
     def test_displays_all_list_items(self):
-        Item.objects.create(text='itemey 1')
-        Item.objects.create(text='itemey 2')
-
-        response = self.client.get('/lists/the-only-list-in-the-world/')
-
-        self.assertIn('itemey 1', response.content.decode())
-        self.assertIn('itemey 2', response.content.decode())
+        list_ = List.objects.create()
+        Item.objects.create(text='itemey 1', list=list_)
+        Item.objects.create(text='itemey 2', list=list_)
 
 class NewListTest(TestCase):
     def test_saving_a_POST_request(self):
