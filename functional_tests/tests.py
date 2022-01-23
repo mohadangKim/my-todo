@@ -54,7 +54,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('공작깃털 사기')
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: 공작깃털 사기')
+        time.sleep(1)
 
         # 추가 REST API url 변경 되었는지 검증
         edith_list_url = self.browser.current_url
@@ -73,7 +73,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('우유 사기')
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: 우유 사기')
+        time.sleep(1)
 
         # 두번째 사용자 추가 REST API URL이 첫번째 사용자의 추가 REST API URL과 다른지 거믖ㅇ
         francis_list_url = self.browser.current_url
