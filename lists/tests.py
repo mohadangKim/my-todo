@@ -1,5 +1,5 @@
 from django.core.urlresolvers import resolve
-from django.http import HttpRequest
+from django.http import HttpRequest, response
 from django.test import TestCase
 from django.template.loader import render_to_string
 from lists.views import home_page
@@ -15,4 +15,19 @@ class HomePageTest(TestCase):
         response = home_page(request) # home_page 뷰에 전달해서 응답을 취득, 반환값은 HttpResponse 객체
         html = response.content.decode('utf8') # home_page 함수가 template을 이용하여 구현 되었는지 검증
         expected_html = render_to_string('home.html')
-        self.assertEqual(html, expected_html)        
+        self.assertEqual(html, expected_html)
+
+    def test_home_page_can_save_a_POST_request(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = '신규 작업 아이템'
+
+        response = home_page(request)
+
+        self.assertIn('신규 작업 아이템', response.content.decode())
+        expected_html = render_to_string(
+            'home.html',
+            {'new_item_text' : '신규 작업 아이템'} 
+        )
+
+        self.assertEqual(response.content.decode(), expected_html)
