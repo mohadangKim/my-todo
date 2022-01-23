@@ -58,7 +58,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # 추가 REST API url 변경 되었는지 검증
         edith_list_url = self.browser.current_url
-        self.assertRegex(edith_list_url, '/list/.+')
+        self.assertRegex(edith_list_url, '/lists/.+')
 
         # 두번째 사용자가 사이트 접속
         self.browser.quit()
@@ -66,7 +66,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # 첫번째 사용자의 To-Do 리스트가 없는지 확인
         self.browser.get(self.live_server_url)
-        page_text = self.browser.find_elements_by_tag_name('body').text
+        page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('공작깃털 사기', page_text)
         self.assertNotIn('그물 만들기', page_text)
 
@@ -81,6 +81,6 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotEqual(francis_list_url, edith_list_url)
 
         # 다시, 첫번째 사용자의 To-Do 리스트가 없는지 확인
-        page_text = self.browser.find_elements_by_tag_name('body').text
+        page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('공작깃털 사기', page_text)
         self.assertNotIn('그물 만들기', page_text)

@@ -2,10 +2,8 @@ from django.core.urlresolvers import resolve
 from django.http import HttpRequest, request, response
 from django.test import TestCase
 from django.template.loader import render_to_string
-from lists.views import home_page
-from lists.views import new_list
-from lists.models import Item
-from lists.models import List
+from lists.views import home_page, new_list, add_item
+from lists.models import Item, List
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -51,13 +49,31 @@ class ListAndItemModelTest(TestCase):
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):
-        response = self.client.get('/lists/the-only-list-in-the-world/')
-        self.assertTemplateUsed(response, 'list.html') # reponse가 list.html 템플릿을 이용하여 만들어 졌는지 검증
-
-    def test_displays_all_list_items(self):
         list_ = List.objects.create()
-        Item.objects.create(text='itemey 1', list=list_)
-        Item.objects.create(text='itemey 2', list=list_)
+        response = self.client.get('/lists/{}/'.format(list_.id,)) # url에 list id를 넣어야 요청 가능
+        self.assertTemplateUsed(response, 'list.html')
+
+    def test_displays_only_items_for_that_list(self):
+        correct_list = List.objects.create()
+        Item.objects.create(text='itemey 1', list=correct_list)
+        Item.objects.create(text='itemey 2', list=correct_list)
+
+        other_list = List.objects.create()
+        Item.objects.create(text='other list item1', list=other_list)
+        Item.objects.create(text='other list item2', list=other_list)
+
+        response = self.client.get('/lists/{}/'.format(correct_list.id))
+
+        self.assertContains(response, 'itemey 1') # 각자 고유의 item을 가지는지 검증
+        self.assertContains(response, 'itemey 2')
+        self.assertNotContains(response, 'other list item1')
+        self.assertNotContains(response, 'other list item2')
+
+    def test_passes_correct_list_to_template(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+        response = self.client.get('/lists/{}/'.format(correct_list.id))
+        self.assertEqual(response.context['list'], correct_list) # response.context : 렌더링 함수에 전달할 context
 
 class NewListTest(TestCase):
     def test_saving_a_POST_request(self):
@@ -76,6 +92,38 @@ class NewListTest(TestCase):
         request = HttpRequest()
         request.method = 'POST'
         request.POST['item_text'] = '신규 작업 아이템'
-        response = new_list(request)        
+        response = new_list(request)
+
+        first_list = List.objects.first()
+
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
+        self.assertEqual(response['location'], '/lists/{}/'.format(first_list.id,))
+
+
+class NewItemTest(TestCase):
+    
+    def test_can_save_a_POST_request_to_an_existing_list(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new item for an existing list'
+        response = add_item(request, correct_list.id)        
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new item for an existing list')
+        self.assertEqual(new_item.list, correct_list)
+
+    def test_redirects_to_list_view(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new item for an existing list'
+        response = add_item(request, correct_list.id)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/lists/{}/'.format(correct_list.id,))
