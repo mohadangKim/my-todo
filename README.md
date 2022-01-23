@@ -15,9 +15,12 @@
   - run django server
 
 > python3 manage.py test
+  - run all test(unit, function)
+
+> python3 manage.py lists
   - run unit test
 
-> python3 functional_tests.py
+> python3 manage.py test functional_tests
   - run function test
 
 > python3 manage.py makemigrations
