@@ -21,4 +21,13 @@
   - run function test
 
 > python3 manage.py makemigrations
-  - upgrade DB(based on models.py)
+  - structure DB scheme (based on models.py)
+
+> python3 manage.py migrate
+  - create DB
+
+> python3 manage.py migrate --noinput
+  - create DB
+
+> rm db.sqlite3
+  - remove DB
